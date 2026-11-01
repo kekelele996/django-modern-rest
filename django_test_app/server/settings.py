@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'server.apps.token_auth',
     'server.apps.token_custom_user',
     'server.apps.etag',
+    'server.apps.quotes',
     'server.apps.external_views',
     'server.apps.allauth_auth',
     # Django:

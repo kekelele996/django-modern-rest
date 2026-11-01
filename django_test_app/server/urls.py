@@ -33,6 +33,7 @@ from server.apps.model_cursor import urls as model_cursor_urls
 from server.apps.model_fk import urls as model_fk_urls
 from server.apps.model_simple import urls as model_simple_urls
 from server.apps.negotiations import urls as negotiations_urls
+from server.apps.quotes import urls as quotes_urls
 from server.apps.token_auth import urls as token_auth_urls
 from server.apps.token_custom_user import urls as token_custom_user_urls
 
@@ -50,6 +51,7 @@ router.include(django_session_auth_urls.router, namespace='django_session_auth')
 router.include(token_auth_urls.router, namespace='token_auth')
 router.include(token_custom_user_urls.router, namespace='token_custom_user')
 router.include(etag_urls.router, namespace='etag')
+router.include(quotes_urls.router, namespace='quotes')
 router.include(external_views_urls.router, namespace='external_views')
 router.include(allauth_auth_urls.router, namespace='allauth_auth')
 # ^ you can include as many routers as you wish!
