@@ -21,6 +21,7 @@ from dmr.openapi.views import (
 from dmr.openapi.views.yaml import OpenAPIYamlView
 from dmr.plugins.pydantic import PydanticSerializer
 from dmr.routing import Router, build_404_handler, build_500_handler, path
+from server.apps.activities import urls as activities_urls
 from server.apps.allauth_auth import urls as allauth_auth_urls
 from server.apps.controllers import urls as controllers_urls
 from server.apps.django_session_auth import urls as django_session_auth_urls
@@ -39,6 +40,7 @@ from server.apps.token_custom_user import urls as token_custom_user_urls
 admin.autodiscover()
 
 router = Router(prefix='api/')
+router.include(activities_urls.router, namespace='activities')
 router.include(model_simple_urls.router, namespace='model_simple')
 router.include(model_fk_urls.router, namespace='model_fk')
 router.include(model_cursor_urls.router, namespace='model_cursor')
