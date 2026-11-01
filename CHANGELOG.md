@@ -54,6 +54,12 @@ ask your coding agent to use `$dmr-upgrade` to upgrade a project.
   documented as integers with examples instead of strings, #1706
 - Added `Parser.decodes_into_model` flag for parsers
   that decode bodies directly into models, #1740
+- Added `dmr.idempotency` with the `Idempotency` middleware
+  and `DjangoCacheStorage`: unsafe requests carrying
+  an `Idempotency-Key` header are executed once, retries with
+  the same key and payload replay the first status code, body,
+  headers and cookies, while reused keys with a different payload
+  and concurrent in-progress requests get `409 Conflict`
 
 ### Bugfixes
 

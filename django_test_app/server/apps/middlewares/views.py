@@ -9,6 +9,7 @@ from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from dmr import Body, Controller, ResponseSpec
 from dmr.decorators import wrap_middleware
 from dmr.errors import ErrorModel, format_error
+from dmr.idempotency import Idempotency
 from dmr.plugins.pydantic import PydanticSerializer
 from dmr.response import build_response
 from server.apps.middlewares.middleware import (
@@ -18,6 +19,24 @@ from server.apps.middlewares.middleware import (
 )
 
 _MESSAGE_KEY: Final = 'message'
+_CHARGED_STATUS: Final = 'charged'
+
+# Simulates a database table of charge records,
+# each retry with the same idempotency key must not add a new row here:
+_created_charges: list[dict[str, object]] = []
+
+
+def reset_charges() -> None:
+    """Clear the charge ledger, used in tests."""
+    _created_charges.clear()
+
+
+def charge_count() -> int:
+    """Return how many charge records currently exist."""
+    return len(_created_charges)
+
+
+idempotency = Idempotency(serializer=PydanticSerializer)
 
 
 @final
@@ -113,10 +132,72 @@ def login_required_json(response: HttpResponse) -> HttpResponse:
     return response
 
 
+@wrap_middleware(
+    idempotency,
+    ResponseSpec(
+        return_type=ErrorModel,
+        status_code=HTTPStatus.CONFLICT,
+    ),
+)
+def idempotent_json(response: HttpResponse) -> HttpResponse:
+    """Pass through idempotency replays and conflicts."""
+    return response
+
+
 @final
 class _UserInput(pydantic.BaseModel):
     email: str
     age: int = pydantic.Field(strict=True)
+
+
+@final
+class _ChargeInput(pydantic.BaseModel):
+    order_id: str
+    amount: int = pydantic.Field(strict=True)
+
+
+@final
+class _ChargeResult(pydantic.BaseModel):
+    record_id: int
+    order_id: str
+    amount: int
+    status: str
+
+
+@final
+@idempotent_json
+class ChargeController(Controller[PydanticSerializer]):
+    """Creates a charge record, protected by the idempotency middleware."""
+
+    responses = idempotent_json.responses
+
+    def post(self, parsed_body: Body[_ChargeInput]) -> _ChargeResult:
+        record = {
+            'record_id': len(_created_charges) + 1,
+            'order_id': parsed_body.order_id,
+            'amount': parsed_body.amount,
+            'status': _CHARGED_STATUS,
+        }
+        _created_charges.append(record)
+        return _ChargeResult(**record)
+
+
+@final
+@idempotent_json
+class AsyncChargeController(Controller[PydanticSerializer]):
+    """Async version of :class:`ChargeController`."""
+
+    responses = idempotent_json.responses
+
+    async def post(self, parsed_body: Body[_ChargeInput]) -> _ChargeResult:
+        record = {
+            'record_id': len(_created_charges) + 1,
+            'order_id': parsed_body.order_id,
+            'amount': parsed_body.amount,
+            'status': _CHARGED_STATUS,
+        }
+        _created_charges.append(record)
+        return _ChargeResult(**record)
 
 
 @final

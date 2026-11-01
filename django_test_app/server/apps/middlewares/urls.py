@@ -25,6 +25,16 @@ router = Router(
             name='rate_limited',
         ),
         path(
+            'charges/',
+            views.ChargeController.as_view(),
+            name='charges',
+        ),
+        path(
+            'async-charges/',
+            views.AsyncChargeController.as_view(),
+            name='async_charges',
+        ),
+        path(
             'request-id/',
             views.RequestIdController.as_view(),
             name='request_id',

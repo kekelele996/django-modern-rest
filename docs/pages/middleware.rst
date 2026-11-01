@@ -68,6 +68,58 @@ Here's an example of a rate limiting middleware:
     :linenos:
     :language: python
 
+Idempotent Requests
+-------------------
+
+Clients sometimes retry unsafe requests (like creating a charge)
+after a timeout, without knowing whether the first request reached
+the server. Without protection the same action is executed twice.
+
+``django-modern-rest`` ships the
+:class:`~dmr.idempotency.Idempotency` middleware, which implements
+the ``Idempotency-Key`` request header pattern:
+
+1. The client sends a unique value in the ``Idempotency-Key`` header.
+2. The first request is executed normally and its full response
+   (status code, body, headers and cookies) is stored in the cache.
+3. Every retry with the same key and the same payload gets
+   the stored response replayed, the controller is never called again.
+4. A request that reuses the key with a different payload, as well as
+   a second request arriving while the first one is still in progress,
+   gets a ``409 Conflict`` response.
+5. Requests without the header and safe HTTP methods are not affected.
+
+Replayed requests additionally set
+``request.idempotency_replayed = True`` for logging and metrics.
+
+.. literalinclude:: /examples/middleware/idempotency.py
+  :linenos:
+  :language: python
+
+The state is stored in Django's cache framework via
+:class:`~dmr.idempotency.DjangoCacheStorage`.
+Use a shared backend like Redis or Memcached in production,
+because the default ``LocMemCache`` does not share the state
+between worker processes. The ``ttl`` controls how long finished
+responses are replayed (24 hours by default) and ``lock_timeout``
+bounds in-progress requests (60 seconds by default):
+
+.. code:: python
+
+   from dmr.idempotency import DjangoCacheStorage, Idempotency
+
+   idempotency = Idempotency(
+       serializer=PydanticSerializer,
+       storage=DjangoCacheStorage(cache_name='idempotency'),
+       ttl=60 * 60,
+       lock_timeout=30,
+   )
+
+By default keys are scoped per authenticated user, pass
+``scope=None`` to make them global. Use the ``should_store`` callback
+to customize which responses are cached (non-``5xx`` by default,
+so transient server errors stay retryable).
+
 Multiple Response Descriptions
 ------------------------------
 

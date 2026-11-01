@@ -107,6 +107,7 @@ smoke *extras='':
     uv run python -c 'from dmr.throttling.backends import *'
     uv run python -c 'from dmr.throttling.algorithms import *'
     uv run python -c 'from dmr.throttling.cache_keys import *'
+    uv run python -c 'from dmr.idempotency import *'
     uv run python -c 'from dmr.openapi.config import *'
     uv run python -c 'from dmr.openapi.objects import *'
     # Settings itself can be imported with `.setup()`:
