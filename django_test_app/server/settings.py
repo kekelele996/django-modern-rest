@@ -43,6 +43,7 @@ ALLOWED_HOSTS = [
 
 INSTALLED_APPS = [
     # Custom:
+    'server.apps.batch_operations',
     'server.apps.model_simple',
     'server.apps.model_fk',
     'server.apps.model_cursor',
