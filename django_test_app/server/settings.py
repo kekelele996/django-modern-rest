@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'server.apps.etag',
     'server.apps.external_views',
     'server.apps.allauth_auth',
+    'server.apps.video_uploads',
     # Django:
     'django.contrib.admin',
     'django.contrib.auth',
@@ -157,6 +158,11 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = Path(tempfile.gettempdir()) / 'dmr-example-staticfiles'
+
+# Uploaded files:
+# https://docs.djangoproject.com/en/5.2/ref/settings/#media-root
+MEDIA_URL = 'media/'
+MEDIA_ROOT = Path(tempfile.gettempdir()) / 'dmr-example-media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

@@ -35,6 +35,7 @@ from server.apps.model_simple import urls as model_simple_urls
 from server.apps.negotiations import urls as negotiations_urls
 from server.apps.token_auth import urls as token_auth_urls
 from server.apps.token_custom_user import urls as token_custom_user_urls
+from server.apps.video_uploads import urls as video_uploads_urls
 
 admin.autodiscover()
 
@@ -52,6 +53,7 @@ router.include(token_custom_user_urls.router, namespace='token_custom_user')
 router.include(etag_urls.router, namespace='etag')
 router.include(external_views_urls.router, namespace='external_views')
 router.include(allauth_auth_urls.router, namespace='allauth_auth')
+router.include(video_uploads_urls.router, namespace='video_uploads')
 # ^ you can include as many routers as you wish!
 
 openapi_config = OpenAPIConfig(
