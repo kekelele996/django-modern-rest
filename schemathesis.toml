@@ -31,3 +31,11 @@ include-tag = 'model_cursor'
 
 [operations.checks.positive_data_acceptance ]
 expected-statuses = ['2xx', '400']
+
+# Sparse fieldset endpoints answer `400` when `fields` names a path
+# that does not exist in the response schema:
+[[operations]]
+include-tag = 'profiles'
+
+[operations.checks.positive_data_acceptance]
+expected-statuses = ['2xx', '400']

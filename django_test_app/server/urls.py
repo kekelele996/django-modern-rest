@@ -33,12 +33,14 @@ from server.apps.model_cursor import urls as model_cursor_urls
 from server.apps.model_fk import urls as model_fk_urls
 from server.apps.model_simple import urls as model_simple_urls
 from server.apps.negotiations import urls as negotiations_urls
+from server.apps.profiles import urls as profiles_urls
 from server.apps.token_auth import urls as token_auth_urls
 from server.apps.token_custom_user import urls as token_custom_user_urls
 
 admin.autodiscover()
 
 router = Router(prefix='api/')
+router.include(profiles_urls.router, namespace='profiles')
 router.include(model_simple_urls.router, namespace='model_simple')
 router.include(model_fk_urls.router, namespace='model_fk')
 router.include(model_cursor_urls.router, namespace='model_cursor')
